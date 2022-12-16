@@ -19,5 +19,9 @@ class GetBoard(generics.ListCreateAPIView):
 
 
 class UpdateBoard(generics.RetrieveUpdateAPIView):
-    pass
+    queryset = Board.objects.all()
+    serializer_class = BoardSerializer
+    permission_classes = (IsOwner, )
+
+
 
