@@ -10,12 +10,14 @@ from .permissions import IsOwner
 class GetBoard(generics.ListCreateAPIView):
     queryset = Board.objects.all()
     serializer_class = BoardSerializer
-    # permission_classes = (IsOwner, )
 
-    def get(self, request, *args, **kwargs):
-        print(request.user)
-        return self.list(request, *args, **kwargs)
+    def get_queryset(self):
+        return Board.objects.filter(user=self.request.user)
 
     def post(self, request, *args, **kwargs):
         return Response({"you": f"{request.user}"})
+
+
+class UpdateBoard(generics.RetrieveUpdateAPIView):
+    pass
 
