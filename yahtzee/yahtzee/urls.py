@@ -22,4 +22,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v1/board/', GetBoard.as_view()),
     path('api/v1/board/<int:pk>/', UpdateBoard.as_view()),
+    path('', index, name='main')
 ]

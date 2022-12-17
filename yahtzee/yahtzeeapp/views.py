@@ -24,4 +24,7 @@ class UpdateBoard(generics.RetrieveUpdateAPIView):
     permission_classes = (IsOwner, )
 
 
+def index(request):
+    return render(request, "yahtzeeapp/base.html")
+
 
