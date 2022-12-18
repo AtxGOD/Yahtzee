@@ -15,6 +15,8 @@ class GetBoard(generics.ListCreateAPIView):
         return Board.objects.filter(user=self.request.user)
 
     def post(self, request, *args, **kwargs):
+        print(request.user)
+        print(request.data)
         return Response({"you": f"{request.user}"})
 
 

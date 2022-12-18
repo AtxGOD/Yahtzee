@@ -20,10 +20,14 @@ const combinations = ['1',
                       'Сума'];
 
 var mainBoard;
+var info = document.querySelector('.info');
+var startNewGameButton = document.querySelector('.newGame');
+var addGamerButton = document.querySelector('.addGamer');
+var delGamerButton = document.querySelector('.delGamer');
+var sendNewGameRequestButton = document.querySelector('.sendNewGameRequest');
 
-function drawBoard() {
 
-  function status(response) {  
+function status(response) {  
     if (response.status >= 200 && response.status < 300) {  
       return Promise.resolve(response)  
     } else {  
@@ -31,9 +35,12 @@ function drawBoard() {
     }  
   }
 
-  function json(response) {  
+function json(response) {  
     return response.json()  
   }
+
+
+function drawBoard() {
 
   fetch('http://127.0.0.1:8000/api/v1/board/')  
     .then(status)  
@@ -80,12 +87,93 @@ function drawBoard() {
     });
 }
 
-drawBoard();
-
-button = document.querySelector('.testBut');
-button.onclick = function() {
-  console.log(mainBoard)
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
 }
+
+
+async function postData(url = '', data = {}) {
+  let csrftoken = getCookie('csrftoken');
+  
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Accept': 'application/json, text/plain, */*',
+        'Content-Type': 'application/json',
+        "X-CSRFToken": csrftoken },
+    body: JSON.stringify(data)
+  });
+  return await response.json(); // parses JSON response into native JavaScript objects
+}
+
+
+function startNewGame(gamers) {
+  postData('http://127.0.0.1:8000/api/v1/board/', {"gamers": gamers})
+  .then((data) => {
+    console.log(data);
+  });
+};
+
+
+function onLoadPage() {
+  var test = fetch('http://127.0.0.1:8000/api/v1/board/')  
+    .then(status)  
+    .then(json)  
+    .then(function(data) {
+      if (!data.length) {
+        info.textContent = 'Розпочніть нову гру!';
+      } else {
+        drawBoard();
+      }
+    })
+    .catch((error) => {
+      info.textContent = 'Вам потрібно пройти авторизацію!';
+    });
+};
+
+
+function addGamerInputButtom() {
+  var newInput = document.createElement('input');
+  var inputGamers = document.querySelector('.inputGamers');
+  inputGamers.appendChild(newInput);
+};
+
+function delGamerInputButtom() {
+  var inputGamers = document.querySelector('.inputGamers');
+  inputGamers.lastChild.remove();
+};
+
+function sendNewGameRequest() {
+  var inputGamers = document.querySelector('.inputGamers');
+  var gamers = [];
+  for (const child of inputGamers.children) {
+    gamers.push(child.value);
+  }
+  startNewGame(gamers);
+};
+
+
+// startNewGameButton.addEventListener('click', );
+addGamerButton.addEventListener('click', addGamerInputButtom);
+delGamerButton.addEventListener('click', delGamerInputButtom);
+sendNewGameRequestButton.addEventListener('click', sendNewGameRequest);
+
+onLoadPage();
+
+
+
+
+
 
 
 
