@@ -20,6 +20,7 @@ const combinations = ['1',
                       'Сума'];
 
 var mainBoard;
+var board = document.querySelector('.board');
 var info = document.querySelector('.info');
 var startNewGameButton = document.querySelector('.newGame');
 var addGamerButton = document.querySelector('.addGamer');
@@ -52,7 +53,6 @@ function drawBoard() {
       console.log(data[0]['players']['players'].length);
       mainBoard = data[0];
 
-      var board = document.querySelector('.board');
       var table = document.createElement('table');
       board.appendChild(table);
       
@@ -118,7 +118,7 @@ async function postData(url = '', data = {}) {
 
 
 function startNewGame(gamers) {
-  postData('http://127.0.0.1:8000/api/v1/board/', {"gamers": gamers})
+  postData('http://127.0.0.1:8000/api/v1/board/', {"players": gamers})
   .then((data) => {
     console.log(data);
   });
@@ -142,6 +142,11 @@ function onLoadPage() {
 };
 
 
+function clearBoard() {
+  board.textContent = '';
+};
+
+
 function addGamerInputButtom() {
   var newInput = document.createElement('input');
   var inputGamers = document.querySelector('.inputGamers');
@@ -159,11 +164,17 @@ function sendNewGameRequest() {
   for (const child of inputGamers.children) {
     gamers.push(child.value);
   }
-  startNewGame(gamers);
+
+  postData('http://127.0.0.1:8000/api/v1/board/', {"players": gamers})
+  .then((data) => {
+    console.log(data);
+    
+    clearBoard()
+    drawBoard()
+  });
 };
 
 
-// startNewGameButton.addEventListener('click', );
 addGamerButton.addEventListener('click', addGamerInputButtom);
 delGamerButton.addEventListener('click', delGamerInputButtom);
 sendNewGameRequestButton.addEventListener('click', sendNewGameRequest);
