@@ -6,3 +6,4 @@ class Board(models.Model):
     user = models.ForeignKey(User, verbose_name='Користувач', on_delete=models.CASCADE)
     players = models.JSONField()
     board = models.JSONField()
+    moves = models.JSONField()

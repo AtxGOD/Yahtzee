@@ -1,3 +1,21 @@
 table, th, td {
   border: 1px solid;
 }
+
+.moveCell {
+  background-color: #E8E8E8;
+  transition: all 0.3s;
+}
+
+.moveCell:hover {
+  background-color: #D0D0D0;
+}
+
+.active {
+ background-color: #4682B4; 
+ transition: all 0.3s;
+}
+
+.active:hover {
+ background-color: #396a93; 
+}

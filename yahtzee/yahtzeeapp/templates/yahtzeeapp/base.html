@@ -7,9 +7,10 @@
     <link rel="stylesheet" href="{% static 'yahtzeeapp/css/style.css' %}">
 </head>
 <body>
+    <div class="moveBack"></div>
     <div class="newGameConteiner">
         <button class="newGame">Нова гра</button>
-        <div class="newGameInputNewGamers">
+        <div class="newGameInputNewGamers" hidden=true>
             <button class="addGamer">Додати гравця</button>
             <button class="delGamer">X</button>
             <div class="inputGamers">
@@ -21,6 +22,7 @@
 
     <div class="info"></div>
     <div class="board"></div>
+    <div class="buttons"></div>
 <script src="{% static 'yahtzeeapp/js/script.js' %}"></script>
 </body>
 </html>
