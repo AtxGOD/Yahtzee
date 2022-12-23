@@ -222,6 +222,7 @@ function sendNewGameRequest() {
   .then((data) => {
     
     clearBoard()
+    pc1.classList.toggle('hide');
     getBoard()
 
   });
@@ -251,8 +252,8 @@ function colorMovePlayer() {
   var headerTable = document.querySelectorAll('.board table tr th');
     for (const header of headerTable) {
       if (header.innerHTML == move)
-        {header.style.backgroundColor = "green";}
-      else {header.style.backgroundColor = "white";};
+        {header.classList.add('move-player');}
+      else {header.classList.remove('move-player');};
       } 
 };
 
@@ -306,6 +307,8 @@ function buttonClick(element) {
   var newBoard = mainBoard['board'];
   var newMoves = mainBoard['moves'];
 
+  console.log(element);
+
   com = document.querySelector('.active');
 
   mainBoard['moves']['moves'].push([move, com.parentElement.firstChild.innerHTML])
@@ -339,24 +342,23 @@ function moveBack() {
   });
 };
 
+var btn = document.querySelectorAll('.newGame');
+var pc1 = document.querySelector('.newGameInputNewGamers');
 
-function hideNewGameMenu() {
-  var div = document.querySelector('.newGameInputNewGamers');
-  if (div.hidden) {
-    div.hidden = false;
-  } else {
-    div.hidden = true;
-  };
-};
+btn.forEach(item => {item.addEventListener('click', function() {
+  pc1.classList.toggle('hide');
+});})
 
+// btn.addEventListener('click', function() {
+//   pc1.classList.toggle('hide');
+// });
+  
 
 addGamerButton.addEventListener('click', addGamerInputButtom);
 delGamerButton.addEventListener('click', delGamerInputButtom);
 sendNewGameRequestButton.addEventListener('click', sendNewGameRequest);
-startNewGameButton.addEventListener('click', hideNewGameMenu);
 
 onLoadPage();
-
 
 
 
