@@ -6,9 +6,6 @@ def create_board(players):
     return {combination: [""] * len(players) for combination in combinations}
 
 
-test = {'id': 27, 'players': {'players': ['Коля', 'Юра', 'Вася']}, 'board': {'1': ['4', '', ''], '2': ['', '8', ''], '3': ['', '', '12'], '4': ['16', '', ''], '5': ['', '', ''], '6': ['', '', '24'], 'Школа': ['', '', ''], 'Пара': ['', '', ''], '2 пари': ['', '', ''], 'Сет': ['12', '12', ''], 'М. стріт': ['', '', ''], 'В. стріт': ['', '', ''], 'Пар': ['', '', ''], 'Нечет': ['', '', ''], 'Фул хаус': ['', '', ''], 'Каре': ['', '8', ''], 'Сміття': ['', '', ''], 'Яцзи': ['', '', ''], 'Сума': ['', '', '']}}
-
-
 def sum_board(data):
     for i in range(len(data['players']['players'])):
         school_sum = 0
@@ -22,6 +19,7 @@ def sum_board(data):
 
         if school_sum >= 63:
             school_sum += 50
+            total_sum += 50
 
         data['board']['Школа'][i] = str(school_sum)
         data['board']['Сума'][i] = str(total_sum)

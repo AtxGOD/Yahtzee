@@ -349,10 +349,6 @@ btn.forEach(item => {item.addEventListener('click', function() {
   pc1.classList.toggle('hide');
 });})
 
-// btn.addEventListener('click', function() {
-//   pc1.classList.toggle('hide');
-// });
-  
 
 addGamerButton.addEventListener('click', addGamerInputButtom);
 delGamerButton.addEventListener('click', delGamerInputButtom);
