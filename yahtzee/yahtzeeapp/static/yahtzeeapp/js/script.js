@@ -51,12 +51,14 @@ var addGamerButton = document.querySelector('.addGamer');
 var delGamerButton = document.querySelector('.delGamer');
 var moveBackDiv = document.querySelector('.moveBack');
 var sendNewGameRequestButton = document.querySelector('.sendNewGameRequest');
+var logInInfoButton = document.querySelector('.logInInfo');
+var registerInfoButton = document.querySelector('.registerInfo');
 
 
 function status(response) {  
     if (response.status >= 200 && response.status < 300) {  
       return Promise.resolve(response)  
-    } else {  
+    } else { 
       return Promise.reject(new Error(response.statusText))  
     }  
   }
@@ -68,8 +70,14 @@ function json(response) {
 
 
 function getBoard() {
+  let auth = getCookie('Authorization');
 
-  fetch('http://127.0.0.1:8000/api/v1/board/')  
+  fetch('http://127.0.0.1:8000/api/v1/board/', {
+    method: 'GET',
+    headers: { 'Accept': 'application/json, text/plain, */*',
+        'Content-Type': 'application/json',
+        "Authorization": auth},
+  })  
     .then(status)  
     .then(json)  
     .then(function(data) {  
@@ -150,12 +158,14 @@ function getCookie(name) {
 
 async function postData(url = '', data = {}) {
   let csrftoken = getCookie('csrftoken');
+  let auth = getCookie('Authorization');
   
   const response = await fetch(url, {
     method: 'POST',
     headers: { 'Accept': 'application/json, text/plain, */*',
         'Content-Type': 'application/json',
-        "X-CSRFToken": csrftoken },
+        "X-CSRFToken": csrftoken,
+        "Authorization": auth},
     body: JSON.stringify(data)
   });
   return await response.json(); // parses JSON response into native JavaScript objects
@@ -164,12 +174,14 @@ async function postData(url = '', data = {}) {
 
 async function patchData(url = '', data = {}) {
   let csrftoken = getCookie('csrftoken');
+  let auth = getCookie('Authorization');
   
   const response = await fetch(url, {
     method: 'PATCH',
     headers: { 'Accept': 'application/json, text/plain, */*',
         'Content-Type': 'application/json',
-        "X-CSRFToken": csrftoken },
+        "X-CSRFToken": csrftoken,
+        "Authorization": auth},
     body: JSON.stringify(data)
   });
   return await response.json(); // parses JSON response into native JavaScript objects
@@ -177,10 +189,25 @@ async function patchData(url = '', data = {}) {
 
 
 function onLoadPage() {
-  var test = fetch('http://127.0.0.1:8000/api/v1/board/')  
+  clearBoard()
+
+  let auth = getCookie('Authorization');
+
+  var test = fetch('http://127.0.0.1:8000/api/v1/board/', {
+      method: 'GET',
+      headers: { 'Accept': 'application/json, text/plain, */*',
+        'Content-Type': 'application/json',
+        "Authorization": auth}})  
     .then(status)  
     .then(json)  
     .then(function(data) {
+
+      loginButton.innerHTML = 'Log out';
+      loginButton.removeEventListener('click', showLoginFunc);
+      registerButton.removeEventListener('click', showRegisterFunc);
+      registerButton.hidden = true;
+      loginButton.addEventListener('click', logOutFunc);
+
       if (!data.length) {
         info.textContent = 'Розпочніть нову гру!';
       } else {
@@ -189,12 +216,23 @@ function onLoadPage() {
     })
     .catch((error) => {
       info.textContent = 'Вам потрібно пройти авторизацію!';
+      loginButton.innerHTML = 'Log in';
+      loginButton.removeEventListener('click', logOutFunc);
+      registerButton.hidden = false;
+      registerButton.addEventListener('click', showRegisterFunc);
+      loginButton.addEventListener('click', showLoginFunc);
     });
 };
 
 
 function clearBoard() {
   board.textContent = '';
+  var divButtons = document.querySelector('.buttons');
+  divButtons.innerHTML = '';
+  moveBackDiv.innerHTML = '';
+  info.innerHTML = '';
+  logInInfoButton.innerHTML = '';
+  registerInfoButton.innerHTML = '';
 };
 
 
@@ -342,6 +380,110 @@ function moveBack() {
   });
 };
 
+
+function showLoginFunc() {
+  var li = document.querySelector('.logInInputData');
+
+  li.classList.toggle('hide');
+};
+
+
+function loginFunc(e) {
+  let csrftoken = getCookie('csrftoken');
+  let auth = getCookie('Authorization');
+
+  var data = {
+    'username': e.target.parentElement.querySelector('.username').value,
+    'password': e.target.parentElement.querySelector('.password').value,
+  }
+
+  var fetchRequest = {
+    method: 'POST',
+    headers: { 'Accept': 'application/json, text/plain, */*',
+               'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken,},
+    body: JSON.stringify(data)
+  }
+
+  fetch('http://127.0.0.1:8000/api/v1/drf-auth/', fetchRequest)
+  .then((response) => response.json())
+  .then((data) => {
+    console.log(data);
+    if (Object.keys(data).includes("non_field_errors")) {
+      logInInfoButton.innerHTML = data['non_field_errors'];
+    };
+    if (Object.keys(data).includes("token")) {
+      document.cookie = "Authorization" + "=" + "Token " + data['token'];
+      showLoginFunc();
+      onLoadPage();
+    };
+  })
+};
+
+
+function logOutFunc() {
+  let auth = getCookie('Authorization');
+
+  var fetchRequest = {
+    method: 'GET',
+    headers: { 'Accept': 'application/json, text/plain, */*',
+               'Content-Type': 'application/json',
+                "Authorization": auth},
+  }
+
+  fetch('http://127.0.0.1:8000/api/v1/drf-auth/logout', fetchRequest)
+  .then((response) => response.json())
+  .then((data) => {
+    console.log(data);
+    onLoadPage()
+  })
+};
+
+
+function showRegisterFunc() {
+  var rf = document.querySelector('.registerInputData');
+
+  rf.classList.toggle('hide');
+};
+
+
+function registerNewUsername(e) {
+  let csrftoken = getCookie('csrftoken');
+
+  var data = {
+    'username': e.target.parentElement.querySelector('.username').value,
+    'email': e.target.parentElement.querySelector('.email').value,
+    'password': e.target.parentElement.querySelector('.password').value,
+  }
+
+  var fetchRequest = {
+    method: 'POST',
+    headers: { 'Accept': 'application/json, text/plain, */*',
+               'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken,},
+    body: JSON.stringify(data)
+  }
+
+  fetch('http://127.0.0.1:8000/api/v1/drf-auth/register', fetchRequest)
+  .then((response) => response.json())
+  .then((data) => {
+    if (Object.keys(data).includes("username")) {
+      registerInfoButton.innerHTML = data['username'];
+    } else if (Object.keys(data).includes("user")) {
+    registerInfoButton.innerHTML = 'Аккаунт створений';
+  }
+  });
+};
+
+
+var registerButton = document.querySelector('.registerButton');
+var sendRegisterRequestButtom = document.querySelector('.sendRegisterRequest');
+sendRegisterRequestButtom.addEventListener('click', registerNewUsername);
+
+var loginButton = document.querySelector('.loginButton');
+var sendLogInRequestButtom = document.querySelector('.sendLogInRequest');
+sendLogInRequestButtom.addEventListener('click', loginFunc);
+
 var btn = document.querySelectorAll('.newGame');
 var pc1 = document.querySelector('.newGameInputNewGamers');
 
@@ -349,16 +491,11 @@ btn.forEach(item => {item.addEventListener('click', function() {
   pc1.classList.toggle('hide');
 });})
 
-
 addGamerButton.addEventListener('click', addGamerInputButtom);
 delGamerButton.addEventListener('click', delGamerInputButtom);
 sendNewGameRequestButton.addEventListener('click', sendNewGameRequest);
 
 onLoadPage();
-
-
-
-
 
 
 

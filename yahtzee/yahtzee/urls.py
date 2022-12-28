@@ -14,13 +14,16 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 
 from yahtzeeapp.views import *
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/v1/drf-auth/', CustomAuthToken.as_view()),
+    path('api/v1/drf-auth/logout', user_logout),
+    path('api/v1/drf-auth/register', RegisterAPI.as_view()),
     path('api/v1/board/', GetBoard.as_view()),
     path('api/v1/board/<int:pk>/', UpdateBoard.as_view()),
-    path('', index, name='main')
+    path('', index, name='main'),
 ]

@@ -88,7 +88,7 @@ button:hover {
   margin-bottom: 20px;
 }
 
-.newGameInputNewGamers {
+.newGameInputNewGamers, .logInInputData, .registerInputData {
   position: absolute;
   top: 25%;
   left: calc(50% - 12em);
@@ -113,16 +113,20 @@ input {
   font-size: 1.2em;
 }
 
-.newGameInputNewGamers {
+.newGameInputNewGamers, .logInInputData, .registerInputData {
   opacity: 1;
   transition: opacity 0.5s linear;
 }
 
-.newGameInputNewGamers.hide {
+.newGameInputNewGamers.hide, .logInInputData.hide, .registerInputData.hide {
   opacity: 0;
   z-index: -1;
 }
 
+.logInInputData p, .registerInputData p {
+  font-size: 1.2em;
+  font-weight: bold;
+}
 
 
 
