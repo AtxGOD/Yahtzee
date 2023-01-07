@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
-from .models import Board
+from .models import Board, GameHistory
 
 
 class BoardSerializer(serializers.ModelSerializer):
@@ -30,3 +30,12 @@ class RegisterSerializer(serializers.ModelSerializer):
         user = User.objects.create_user(validated_data['username'], validated_data['email'], validated_data['password'])
 
         return user
+
+
+class SaveHistorySerializer(serializers.ModelSerializer):
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+
+    class Meta:
+        model = GameHistory
+        fields = ('game_id', 'user', 'players', 'board', 'win_player', 'win_score')
+

@@ -9,8 +9,8 @@ from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
-from .models import Board
-from .serializers import BoardSerializer, RegisterSerializer, UserSerializer
+from .models import Board, GameHistory
+from .serializers import BoardSerializer, RegisterSerializer, UserSerializer, SaveHistorySerializer
 from .permissions import IsOwner
 from .game import create_board, sum_board
 
@@ -47,6 +47,17 @@ class UpdateBoard(generics.RetrieveUpdateAPIView):
         data = self.partial_update(request, *args, **kwargs)
         data.data = sum_board(data.data)
         return data
+
+
+class SaveGameHistory(APIView):
+
+    def post(self, request, *args, **kwargs):
+        GameHistory.objects.filter(game_id=self.request.data['game_id']).delete()
+        g = GameHistory(game_id=request.data['game_id'], user=request.user, players=request.data['players'],
+                        board=request.data['board'], win_player=request.data['win_player'],
+                        win_score=request.data['win_score'])
+        g.save()
+        return Response({'Info': 'Saved game'})
 
 
 from rest_framework.authtoken.views import ObtainAuthToken
@@ -88,7 +99,6 @@ class RegisterAPI(generics.GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
-        print(user)
         return Response({
         "user": UserSerializer(user, context=self.get_serializer_context()).data
         })

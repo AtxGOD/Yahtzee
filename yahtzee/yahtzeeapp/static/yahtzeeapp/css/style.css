@@ -23,7 +23,7 @@ th, td {
 
 tr td:nth-child(1) {
   text-align: left;
-  font-weight: bold;
+/*  font-weight: bold;*/
 }
 
 th {

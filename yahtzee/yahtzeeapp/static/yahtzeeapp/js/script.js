@@ -81,7 +81,6 @@ function getBoard() {
     .then(status)  
     .then(json)  
     .then(function(data) {  
-
       drawBoard(data[0]);
 
     }).catch(function(error) {  
@@ -92,9 +91,9 @@ function getBoard() {
 
 function drawBoard(data) {
       document.querySelector('.buttons').innerHTML = '';
+      info.innerHTML = '';
 
       mainBoard = data;
-      console.log(mainBoard);
 
       board.innerHTML = '';
       var table = document.createElement('table');
@@ -114,6 +113,11 @@ function drawBoard(data) {
         var tdTr = document.createElement('tr');
         var td = document.createElement('td');
         td.textContent = combination;
+
+        if (combination == 'Школа' || combination == 'Сума') {
+          td.style.backgroundColor = '#aaaaaa';
+        };
+
         tdTr.appendChild(td);
 
         for (num of data['board'][combination]) {
@@ -267,6 +271,45 @@ function sendNewGameRequest() {
 };
 
 
+function sendSaveGameHistoryRequest(name, maxNum) {
+  let csrftoken = getCookie('csrftoken');
+  let auth = getCookie('Authorization');
+
+  var data = {
+    'game_id': mainBoard['id'],
+    'players': mainBoard['players']['players'],
+    'board': mainBoard['board'],
+    'win_player': name,
+    'win_score': maxNum
+  }
+
+  var fetchRequest = {
+    method: 'POST',
+    headers: { 'Accept': 'application/json, text/plain, */*',
+               'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken,
+                'Authorization': auth},
+    body: JSON.stringify(data)
+  }
+
+  fetch('http://127.0.0.1:8000/api/v1/save-game-history/', fetchRequest)
+  .then((response) => response.json())
+  .then((info) => {
+    console.log(info);
+  })
+};
+
+
+function findWinPlayer() {
+  var arr = mainBoard['board']['Сума'].map(Number);
+  var maxNum = Math.max.apply(null, arr);
+  var name = mainBoard['players']['players'][mainBoard['board']['Сума'].indexOf(maxNum.toString())];
+
+  sendSaveGameHistoryRequest(name, maxNum)
+  return name;
+};
+
+
 function playerMove() {
   var trash;
 
@@ -282,6 +325,12 @@ function playerMove() {
     trash = count;
 
   };
+  if (trash == 19) {
+    var win = findWinPlayer();
+    info.textContent = `Кінець гри! Переміг ${win}`;
+    return win;
+  };
+
   return mainBoard['players']['players'][0];
 };
 
@@ -312,9 +361,16 @@ function addEventOnCells() {
       & td.parentElement.firstChild.innerHTML != 'Школа'
       & td.parentElement.firstChild.innerHTML != 'Сума') {
       td.classList.add('moveCell');
-    td.onclick = activeDeactive;
+      td.onclick = activeDeactive;
+      td.parentElement.firstChild.style.fontWeight = 'bold';
     } else {
       td.classList.remove('moveCell');
+    };
+    if (td.innerHTML != '' 
+      & Array.prototype.indexOf.call(td.parentElement.children, td) == idPlayer 
+      & td.parentElement.firstChild.innerHTML != 'Школа'
+      & td.parentElement.firstChild.innerHTML != 'Сума') {
+      td.parentElement.firstChild.style.textDecoration = 'line-through';
     };
   };
 };
@@ -345,8 +401,6 @@ function buttonClick(element) {
   var newBoard = mainBoard['board'];
   var newMoves = mainBoard['moves'];
 
-  console.log(element);
-
   com = document.querySelector('.active');
 
   mainBoard['moves']['moves'].push([move, com.parentElement.firstChild.innerHTML])
@@ -363,7 +417,6 @@ function buttonClick(element) {
 
 
 function moveBack() {
-  console.log(mainBoard['moves']['moves'].slice(-1)[0][0]);
   var index = mainBoard['players']['players'].indexOf(mainBoard['moves']['moves'].slice(-1)[0][0]);
   var newBoard = mainBoard['board'];
   var newMoves = mainBoard['moves'];
@@ -408,7 +461,6 @@ function loginFunc(e) {
   fetch('http://127.0.0.1:8000/api/v1/drf-auth/', fetchRequest)
   .then((response) => response.json())
   .then((data) => {
-    console.log(data);
     if (Object.keys(data).includes("non_field_errors")) {
       logInInfoButton.innerHTML = data['non_field_errors'];
     };
@@ -434,7 +486,6 @@ function logOutFunc() {
   fetch('http://127.0.0.1:8000/api/v1/drf-auth/logout', fetchRequest)
   .then((response) => response.json())
   .then((data) => {
-    console.log(data);
     onLoadPage()
   })
 };
