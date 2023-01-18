@@ -10,7 +10,8 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from .models import Board, GameHistory
-from .serializers import BoardSerializer, RegisterSerializer, UserSerializer, SaveHistorySerializer
+from .serializers import BoardSerializer, RegisterSerializer, UserSerializer, SaveHistorySerializer, \
+    TopHistorySerializer
 from .permissions import IsOwner
 from .game import create_board, sum_board
 
@@ -36,6 +37,19 @@ class GetBoard(generics.ListCreateAPIView):
                   moves={'moves': []})
         b.save()
         return Response({"you": f"{request.user}"})
+
+
+class GetHistoryBoard(APIView):
+    def get(self, request, *args, **kwargs):
+        result_boar = GameHistory.objects.filter(user=self.request.user).latest('data')
+        result_top = GameHistory.objects.all().order_by('-win_score')[:10]
+        return Response({"board": SaveHistorySerializer(result_boar).data,
+                         "top": TopHistorySerializer(result_top, many=True).data})
+
+
+class GetHistoryBoardById(APIView):
+    def get(self, request, *args, **kwargs):
+        print(request.data)
 
 
 class UpdateBoard(generics.RetrieveUpdateAPIView):
@@ -107,4 +121,7 @@ class RegisterAPI(generics.GenericAPIView):
 def index(request):
     return render(request, "yahtzeeapp/base.html")
 
+
+def history(request):
+    return render(request, "yahtzeeapp/history.html")
 

@@ -363,6 +363,7 @@ function addEventOnCells() {
       td.classList.add('moveCell');
       td.onclick = activeDeactive;
       td.parentElement.firstChild.style.fontWeight = 'bold';
+      td.parentElement.firstChild.style.backgroundColor = '#40E0D0';
     } else {
       td.classList.remove('moveCell');
     };
@@ -371,6 +372,7 @@ function addEventOnCells() {
       & td.parentElement.firstChild.innerHTML != 'Школа'
       & td.parentElement.firstChild.innerHTML != 'Сума') {
       td.parentElement.firstChild.style.textDecoration = 'line-through';
+
     };
   };
 };
@@ -545,6 +547,15 @@ btn.forEach(item => {item.addEventListener('click', function() {
 addGamerButton.addEventListener('click', addGamerInputButtom);
 delGamerButton.addEventListener('click', delGamerInputButtom);
 sendNewGameRequestButton.addEventListener('click', sendNewGameRequest);
+
+var historyButton = document.querySelector('.historyButton');
+// historyButton.location.href = 'http://127.0.0.1:8000/history/';
+
+historyButton.addEventListener('click', () => {
+  window.location.href = 'http://127.0.0.1:8000/history/';
+});
+
+
 
 onLoadPage();
 

@@ -39,3 +39,9 @@ class SaveHistorySerializer(serializers.ModelSerializer):
         model = GameHistory
         fields = ('game_id', 'user', 'players', 'board', 'win_player', 'win_score')
 
+
+class TopHistorySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = GameHistory
+        fields = ('game_id', 'win_player', 'win_score')
