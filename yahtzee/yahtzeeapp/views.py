@@ -64,7 +64,6 @@ class UpdateBoard(generics.RetrieveUpdateAPIView):
 
 
 class SaveGameHistory(APIView):
-
     def post(self, request, *args, **kwargs):
         GameHistory.objects.filter(game_id=self.request.data['game_id']).delete()
         g = GameHistory(game_id=request.data['game_id'], user=request.user, players=request.data['players'],
